@@ -35,7 +35,27 @@ type UseKeyboardListNavigationOptions = {
   focusItemAt: (index: number) => void;
   open?: (index: number) => void;
   skip?: (index: number) => boolean;
+  /**
+   * Fork: Enter renames, Delete/Backspace archives and Mod-Delete/Backspace
+   * trashes. Return true when the action was handled.
+   */
+  onItemAction?: (
+    action: ListItemAction,
+    index: number,
+    event: KeyboardEvent
+  ) => boolean;
 };
+
+export type ListItemAction = "rename" | "archive" | "trash";
+
+function isTextInput(target: EventTarget | null) {
+  return (
+    target instanceof HTMLElement &&
+    (target.isContentEditable ||
+      target instanceof HTMLInputElement ||
+      target instanceof HTMLTextAreaElement)
+  );
+}
 
 export function useKeyboardListNavigation(
   options: UseKeyboardListNavigationOptions
@@ -48,7 +68,8 @@ export function useKeyboardListNavigation(
     reset,
     select,
     bulkSelect,
-    focusItemAt
+    focusItemAt,
+    onItemAction
   } = options;
   const cursor = useRef(-1);
   const anchor = useRef(-1);
@@ -104,10 +125,20 @@ export function useKeyboardListNavigation(
   const onKeyDown = useCallback(
     (e: KeyboardEvent) => {
       const max = length - 1;
+      const itemAction = (action: ListItemAction) => () => {
+        if (!onItemAction || isTextInput(e.target)) return false;
+        if (!onItemAction(action, cursor.current, e)) return false;
+        e.preventDefault();
+        return true;
+      };
 
       keydownHandler({
         Space: openActiveItem,
-        Enter: openActiveItem,
+        Enter: () => itemAction("rename")() || openActiveItem(),
+        Backspace: itemAction("archive"),
+        Delete: itemAction("archive"),
+        "Mod-Backspace": itemAction("trash"),
+        "Mod-Delete": itemAction("trash"),
         ArrowUp: () => {
           resetSelection();
 
@@ -197,6 +228,7 @@ export function useKeyboardListNavigation(
     },
     [
       length,
+      onItemAction,
       openActiveItem,
       resetSelection,
       skip,

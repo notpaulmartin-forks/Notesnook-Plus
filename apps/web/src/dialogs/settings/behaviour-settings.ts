@@ -33,6 +33,10 @@ import {
 import { desktop } from "../../common/desktop-bridge";
 import { ConfirmDialog } from "../confirm";
 import { checkFeature } from "../../common";
+import {
+  SwipeLeftActions,
+  SwipeRightActions
+} from "./components/swipe-actions-editor";
 
 export const BehaviourSettings: SettingsGroup[] = [
   {
@@ -148,6 +152,53 @@ export const BehaviourSettings: SettingsGroup[] = [
             ]
           }
         ]
+      }
+    ]
+  },
+  // Fork: swipe actions on the note list
+  {
+    key: "swipe",
+    section: "behaviour",
+    header: strings.swipe(),
+    settings: [
+      {
+        key: "swipe-actions",
+        title: strings.swipeActions(),
+        description: strings.swipeActionsDesc(),
+        keywords: ["swipe", "gesture", "trackpad", "swipe actions"],
+        onStateChange: (listener) =>
+          useSettingStore.subscribe((s) => s.swipeSettings.enabled, listener),
+        components: [
+          {
+            type: "toggle",
+            isToggled: () => useSettingStore.getState().swipeSettings.enabled,
+            toggle: () => {
+              const { swipeSettings, setSwipeSettings } =
+                useSettingStore.getState();
+              setSwipeSettings({ enabled: !swipeSettings.enabled });
+            }
+          }
+        ]
+      },
+      {
+        key: "swipe-right",
+        title: strings.swipeRight(),
+        description: strings.swipeSideDesc(),
+        keywords: ["swipe right", "swipe actions", "pin", "favorite"],
+        isHidden: () => !useSettingStore.getState().swipeSettings.enabled,
+        onStateChange: (listener) =>
+          useSettingStore.subscribe((s) => s.swipeSettings.enabled, listener),
+        components: [{ type: "custom", component: SwipeRightActions }]
+      },
+      {
+        key: "swipe-left",
+        title: strings.swipeLeft(),
+        description: strings.swipeSideDesc(),
+        keywords: ["swipe left", "swipe actions", "archive", "delete"],
+        isHidden: () => !useSettingStore.getState().swipeSettings.enabled,
+        onStateChange: (listener) =>
+          useSettingStore.subscribe((s) => s.swipeSettings.enabled, listener),
+        components: [{ type: "custom", component: SwipeLeftActions }]
       }
     ]
   },
@@ -312,10 +363,8 @@ export const BehaviourSettings: SettingsGroup[] = [
         description: strings.automaticUpdatesDesc(),
         onStateChange: (listener) =>
           useSettingStore.subscribe((s) => s.autoUpdates, listener),
-        isHidden: () =>
-          useSettingStore.getState().isFlatpak ||
-          useSettingStore.getState().isSnap ||
-          useSettingStore.getState().isPortable,
+        // Fork: auto-updates are disabled on desktop.
+        isHidden: () => true,
         components: [
           {
             type: "toggle",

@@ -30,6 +30,11 @@ import { ConfirmDialog } from "../dialogs/confirm";
 import * as openpgp from "openpgp";
 import { InboxPGPKeysDialog } from "../dialogs/inbox-pgp-keys-dialog";
 import { strings } from "@notesnook/intl";
+import {
+  DEFAULT_SWIPE_SETTINGS,
+  sanitizeSwipeSettings,
+  SwipeSettings
+} from "../common/swipe-actions";
 
 export const HostIds = [
   "API_HOST",
@@ -97,6 +102,19 @@ class SettingStore extends BaseStore<SettingStore> {
   proxyRules?: string;
   isInboxEnabled = false;
   appLanguage = Config.get<string>("appLanguage", "");
+  // Fork: Settings → Behaviour → Swipe
+  swipeSettings: SwipeSettings = sanitizeSwipeSettings(
+    Config.get("swipeActions", DEFAULT_SWIPE_SETTINGS)
+  );
+
+  setSwipeSettings = (changes: Partial<SwipeSettings>) => {
+    const swipeSettings = sanitizeSwipeSettings({
+      ...this.get().swipeSettings,
+      ...changes
+    });
+    this.set({ swipeSettings });
+    Config.set("swipeActions", swipeSettings);
+  };
 
   init = () => {
     db.eventManager.subscribe(EVENTS.userFetched, async () => {

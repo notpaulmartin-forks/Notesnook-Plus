@@ -65,6 +65,8 @@ async function onChange(first) {
   }
 
   await exec(`yarn run bundle`, root);
+  // fork: macOS trackpad gesture addon
+  await exec(`node scripts/build-native.mjs`, root);
   await exec(`yarn run build`, root);
 
   if (await isBundleSame()) {

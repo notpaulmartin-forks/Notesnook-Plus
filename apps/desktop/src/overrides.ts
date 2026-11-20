@@ -38,4 +38,8 @@ if (process.env.CUSTOM_USER_DATA_DIR) {
     "documents",
     path.join(process.env.CUSTOM_USER_DATA_DIR, "Documents")
   );
+  // Fork: safeStorage keys its macOS keychain item by app name. An isolated
+  // run must not ask for (or touch) the real install's "<name> Safe Storage"
+  // item.
+  app.setName(`${app.getName()} Isolated`);
 }

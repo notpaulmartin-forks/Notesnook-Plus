@@ -60,6 +60,7 @@ export const AboutSettings: SettingsGroup[] = [
             variant: "secondary"
           };
           if (
+            IS_DESKTOP_APP ||
             useSettingStore.getState().isFlatpak ||
             useSettingStore.getState().isSnap ||
             useSettingStore.getState().isPortable
@@ -90,6 +91,7 @@ export const AboutSettings: SettingsGroup[] = [
         title: strings.releaseTrack(),
         description: strings.releaseTrackDesc(),
         isHidden: () =>
+          IS_DESKTOP_APP ||
           useSettingStore.getState().isFlatpak ||
           useSettingStore.getState().isSnap ||
           useSettingStore.getState().isPortable,

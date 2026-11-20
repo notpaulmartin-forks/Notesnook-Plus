@@ -4,8 +4,6 @@ coverage
 node_modules
 dist
 
-# mobile
-apps/mobile/native/
 
 # web
 apps/web/public/an.js

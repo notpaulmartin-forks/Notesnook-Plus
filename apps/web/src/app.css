@@ -161,6 +161,12 @@ textarea,
   display: flex;
   flex-direction: column;
 }
+/* Fork: the pane grid inside the editor area */
+.editor-panel {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
 .nav-pane {
   display: flex;
   flex-direction: column;

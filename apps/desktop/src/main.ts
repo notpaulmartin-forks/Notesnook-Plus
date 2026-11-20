@@ -38,6 +38,7 @@ import { CLIOptions, parseArguments } from "./cli";
 import { AssetManager } from "./utils/asset-manager";
 import { createIPCHandler } from "electron-trpc/main";
 import { router, api } from "./api";
+import { setupTrackpad } from "./utils/trackpad";
 import { config } from "./utils/config";
 import path from "path";
 import { bringToFront } from "./utils/bring-to-front";
@@ -88,6 +89,7 @@ ipcMain.on("get-app-locale", (event) => {
 async function createWindow() {
   const cliOptions = await parseArguments(process.argv);
   setTheme(getTheme());
+  setupTrackpad();
 
   // this workaround is necessary because macos doesn't support
   // the --hidden flag when launching the app on startup
@@ -243,7 +245,10 @@ app.once("ready", async () => {
   if (config.customDns) enableCustomDns();
   else disableCustomDns();
 
-  if (!MAC_APP_STORE) app.setAsDefaultProtocolClient("nn");
+  // Fork: runs with an isolated data dir (tests) must not claim nn:// links
+  // system-wide.
+  if (!MAC_APP_STORE && !process.env.CUSTOM_USER_DATA_DIR)
+    app.setAsDefaultProtocolClient("nn");
 
   if (!isDevelopment()) registerProtocol();
   await createWindow();

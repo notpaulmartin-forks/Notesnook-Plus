@@ -23,7 +23,6 @@ import parser from "yargs-parser";
 
 const args = parser(process.argv, { alias: { scope: ["s"] } });
 const scopes = {
-  mobile: "apps/mobile",
   web: "apps/web",
   desktop: "apps/desktop",
   core: "packages/core",

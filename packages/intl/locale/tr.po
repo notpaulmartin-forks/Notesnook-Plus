@@ -520,6 +520,14 @@ msgstr "{count, plural, one {Sürüm silindi} other {# sürüm silindi}}"
 msgid "{count} characters"
 msgstr "{count} karakter"
 
+#: src/strings.ts:3303
+msgid "{count} notes archived"
+msgstr ""
+
+#: src/strings.ts:3305
+msgid "{count} notes unarchived"
+msgstr ""
+
 #: src/strings.ts:3171
 msgid "{count} stars"
 msgstr "{count} yıldız"
@@ -856,6 +864,10 @@ msgstr "Kısa bir not ekle"
 msgid "Add a tag"
 msgstr "Etiket ekle"
 
+#: src/strings.ts:3316
+msgid "Add action"
+msgstr ""
+
 #: src/strings.ts:3218
 msgid "Add attachment"
 msgstr "Ek ekle"
@@ -1145,6 +1157,18 @@ msgstr "Kupon kodu uygulanıyor..."
 #: src/strings.ts:2259
 msgid "Archive"
 msgstr "Arşivle"
+
+#: src/strings.ts:3297
+msgid "Archive {count} notes?"
+msgstr ""
+
+#: src/strings.ts:3297
+msgid "Archive this note?"
+msgstr ""
+
+#: src/strings.ts:3301
+msgid "Archived notes are hidden from your notes list. You can find them under Archive."
+msgstr ""
 
 #: src/strings.ts:1337
 #: src/strings.ts:2634
@@ -2001,6 +2025,10 @@ msgstr ""
 msgid "Clearing trash will permanently delete all the items in your trash. This action is IRREVERSIBLE."
 msgstr "Çöp kutusunu boşaltmak, içindeki tüm öğeleri kalıcı olarak siler. Bu işlem GERİ ALINAMAZ."
 
+#: src/strings.ts:3313
+msgid "Click a button to change, move or remove it. Swiping all the way runs the outermost one."
+msgstr ""
+
 #: src/strings.ts:3138
 msgid "Click here"
 msgstr "Buraya tıklayın"
@@ -2060,6 +2088,10 @@ msgstr "Geçerli sekmeyi kapat"
 #: src/strings.ts:1834
 msgid "Close others"
 msgstr "Diğerlerini kapat"
+
+#: src/strings.ts:3292
+msgid "Close pane"
+msgstr ""
 
 #: src/strings.ts:1923
 msgid "Close to system tray"
@@ -2971,6 +3003,10 @@ msgstr "Görseller indiriliyor"
 msgid "Drag & drop files here, or click to select files"
 msgstr "Dosyaları buraya sürükleyip bırakın veya seçmek için tıklayın"
 
+#: src/strings.ts:3294
+msgid "Drag to move this pane"
+msgstr ""
+
 #: src/strings.ts:2932
 msgid "Drop the files here"
 msgstr "Dosyaları buraya bırakın"
@@ -3856,6 +3892,10 @@ msgstr "Tam kaliteli görseller"
 #: src/strings.ts:2119
 msgid "Full screen"
 msgstr "Tam ekran"
+
+#: src/strings.ts:3314
+msgid "Full swipe: {action}"
+msgstr ""
 
 #: src/strings.ts:2845
 msgid "Fun facts of the year"
@@ -4834,6 +4874,10 @@ msgstr "Küçük Yunan harfleri"
 msgid "Lower Roman"
 msgstr "Küçük Romen rakamları"
 
+#: src/strings.ts:3293
+msgid "Make panes equal size"
+msgstr ""
+
 #: src/strings.ts:2157
 msgid "Make task list readonly"
 msgstr "Görev listesini salt okunur yap"
@@ -5048,6 +5092,10 @@ msgstr "Sütunu sola taşı"
 msgid "Move column right"
 msgstr "Sütunu sağa taşı"
 
+#: src/strings.ts:3318
+msgid "Move left"
+msgstr ""
+
 #: src/strings.ts:3262
 msgid "Move line down"
 msgstr "Satırı aşağı taşı"
@@ -5068,6 +5116,10 @@ msgstr "Üst düğümü aşağı taşı"
 msgid "Move parent node up"
 msgstr "Üst düğümü yukarı taşı"
 
+#: src/strings.ts:3319
+msgid "Move right"
+msgstr ""
+
 #: src/strings.ts:2095
 msgid "Move row down"
 msgstr "Satırı aşağı taşı"
@@ -5075,6 +5127,14 @@ msgstr "Satırı aşağı taşı"
 #: src/strings.ts:2094
 msgid "Move row up"
 msgstr "Satırı yukarı taşı"
+
+#: src/strings.ts:3291
+msgid "Move to new pane below"
+msgstr ""
+
+#: src/strings.ts:3290
+msgid "Move to new pane on the right"
+msgstr ""
 
 #: src/strings.ts:532
 msgid "Move to top"
@@ -5240,6 +5300,10 @@ msgstr "Yedek bulunamadı"
 msgid "No blocks linked"
 msgstr "Bağlı blok yok"
 
+#: src/strings.ts:3315
+msgid "No buttons: swiping this way does nothing."
+msgstr ""
+
 #: src/strings.ts:714
 msgid "No color selected"
 msgstr "Renk seçilmedi"
@@ -5337,6 +5401,10 @@ msgstr "not"
 msgid "Note"
 msgstr "Not"
 
+#: src/strings.ts:3303
+msgid "Note archived"
+msgstr ""
+
 #: src/strings.ts:740
 msgid "Note copied to clipboard"
 msgstr "Not panoya kopyalandı"
@@ -5368,6 +5436,10 @@ msgstr "Not çöp kutusundan geri yüklendi"
 #: src/strings.ts:1466
 msgid "Note title"
 msgstr "Not başlığı"
+
+#: src/strings.ts:3305
+msgid "Note unarchived"
+msgstr ""
 
 #: src/strings.ts:739
 msgid "Note unlocked"
@@ -6600,6 +6672,10 @@ msgstr "Yeniden adlandır"
 msgid "Rename file"
 msgstr "Dosyayı yeniden adlandır"
 
+#: src/strings.ts:3295
+msgid "Rename note"
+msgstr ""
+
 #: src/strings.ts:814
 msgid "Reorder"
 msgstr "Yeniden sırala"
@@ -6615,6 +6691,10 @@ msgstr "Değiştir"
 #: src/strings.ts:2173
 msgid "Replace all"
 msgstr "Tümünü değiştir"
+
+#: src/strings.ts:3317
+msgid "Replace with"
+msgstr ""
 
 #: src/strings.ts:1966
 msgid "Report"
@@ -7540,9 +7620,17 @@ msgstr "Yazım denetimi"
 msgid "Split cells"
 msgstr "Hücreleri böl"
 
+#: src/strings.ts:3289
+msgid "Split down"
+msgstr ""
+
 #: src/strings.ts:3223
 msgid "Split list item"
 msgstr "Liste öğesini böl"
+
+#: src/strings.ts:3288
+msgid "Split right"
+msgstr ""
 
 #: src/strings.ts:2803
 msgid "Square"
@@ -7700,6 +7788,26 @@ msgstr "Üst simge"
 #: src/strings.ts:2765
 msgid "Support the mission - unlock everything."
 msgstr "Misyonu destekleyin - her şeyin kilidini açın."
+
+#: src/strings.ts:3306
+msgid "Swipe"
+msgstr ""
+
+#: src/strings.ts:3309
+msgid "Swipe a note in the list with two fingers to reveal quick actions."
+msgstr ""
+
+#: src/strings.ts:3307
+msgid "Swipe actions"
+msgstr ""
+
+#: src/strings.ts:3311
+msgid "Swipe left"
+msgstr ""
+
+#: src/strings.ts:3310
+msgid "Swipe right"
+msgstr ""
 
 #: src/strings.ts:488
 msgid "Switch to compact view"
@@ -8430,6 +8538,14 @@ msgstr "2FA kodu gönderilemedi"
 #: src/strings.ts:2261
 msgid "Unarchive"
 msgstr "Arşivden çıkar"
+
+#: src/strings.ts:3299
+msgid "Unarchive {count} notes?"
+msgstr ""
+
+#: src/strings.ts:3299
+msgid "Unarchive this note?"
+msgstr ""
 
 #: src/strings.ts:2055
 msgid "Underline"

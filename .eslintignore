@@ -8,10 +8,6 @@ dist
 resources/
 .*.*
 
-# mobile
-apps/mobile/native/
-apps/mobile/__tests__/
-apps/mobile/e2e/
 
 # web
 apps/web/public/an.js
@@ -22,8 +18,6 @@ apps/web/src/common/sqlite/wa-sqlite.js
 packages/editor/styles/
 packages/editor/languages/
 
-# editor mobile
-packages/editor-mobile/build.bundle
 
 # snapshots
 tap-snapshots

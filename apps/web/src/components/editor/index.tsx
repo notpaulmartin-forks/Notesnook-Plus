@@ -66,20 +66,19 @@ import { ScopedThemeProvider } from "../theme-provider";
 import { showToast } from "../../utils/toast";
 import { Item, MaybeDeletedItem, isDeleted } from "@notesnook/core";
 import { debounce, debounceWithId } from "@notesnook/common";
-import { Freeze } from "react-freeze";
 import { UnlockView } from "../unlock";
 import DiffViewer from "../diff-viewer";
 import TableOfContents from "./table-of-contents";
 import { scrollIntoViewById } from "@notesnook/editor";
 import { IEditor } from "./types";
-import { EditorActionBar } from "./action-bar";
+import { PaneGrid } from "./panes";
 import { logger } from "../../utils/logger";
 import { NoteLinkingDialog } from "../../dialogs/note-linking-dialog";
 import { strings } from "@notesnook/intl";
 import { onPageVisibilityChanged } from "../../utils/page-visibility";
 import { Pane, SplitPane } from "../split-pane";
 import { TITLE_BAR_HEIGHT } from "../title-bar";
-import { isMobile } from "../../hooks/use-mobile";
+import useMobile, { isMobile } from "../../hooks/use-mobile";
 import { ConfirmDialog } from "../../dialogs/confirm";
 
 const PDFPreview = React.lazy(() => import("../pdf-preview"));
@@ -124,9 +123,7 @@ export async function saveContent(
 const deferredSave = debounceWithId(saveContent, 100);
 
 export default function TabsView() {
-  const tabs = useEditorStore((store) => store.tabs);
   const documentPreview = useEditorStore((store) => store.documentPreview);
-  const activeTabId = useEditorStore((store) => store.activeTabId);
   const activeSession = useEditorStore((store) => store.getActiveSession());
   const arePropertiesVisible = useEditorStore(
     (store) => store.arePropertiesVisible
@@ -147,17 +144,6 @@ export default function TabsView() {
           flexDirection: "column"
         }}
       >
-        <Flex
-          className="editor-action-bar"
-          sx={{
-            zIndex: 2,
-            height: TITLE_BAR_HEIGHT,
-            bg: "background-secondary"
-            // borderBottom: "1px solid var(--border)"
-          }}
-        >
-          <EditorActionBar />
-        </Flex>
         <SplitPane
           style={{
             position: "relative"
@@ -165,67 +151,56 @@ export default function TabsView() {
           direction="vertical"
           autoSaveId={"editor-panels"}
         >
-          <Pane id="editor-panel" className="editor-pane">
-            {tabs.map((tab) => {
-              const session = useEditorStore
-                .getState()
-                .getSession(tab.sessionId);
-              if (!session) return null;
-              return (
-                <Freeze key={session.id} freeze={tab.id !== activeTabId}>
-                  {session.type === "locked" ? (
-                    <UnlockNoteView session={session} />
-                  ) : session.type === "conflicted" ||
-                    session.type === "diff" ? (
-                    <DiffViewer session={session} />
-                  ) : (
-                    <MemoizedEditorView session={session} />
-                  )}
-                </Freeze>
-              );
-            })}
+          <Pane id="editor-panel" className="editor-panel">
+            <PaneGrid renderSession={renderSession} />
           </Pane>
 
           {documentPreview ? (
             <Pane id="pdf-preview-panel" initialSize={435} minSize={435}>
-              <ScopedThemeProvider
-                scope="editorSidebar"
-                id="editorSidebar"
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  overflow: "hidden",
-                  borderLeft: "1px solid var(--border)",
-                  height: "100%",
-                  bg: "background"
-                }}
-              >
-                {documentPreview.url ? (
-                  <Suspense
-                    fallback={
-                      <DownloadAttachmentProgress hash={documentPreview.hash} />
-                    }
-                  >
-                    <PDFPreview
-                      fileUrl={documentPreview.url}
-                      hash={documentPreview.hash}
-                      onClose={() =>
-                        useEditorStore.setState({
-                          documentPreview: undefined
-                        })
+              <SidePanel>
+                <ScopedThemeProvider
+                  scope="editorSidebar"
+                  id="editorSidebar"
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    overflow: "hidden",
+                    borderLeft: "1px solid var(--border)",
+                    flex: 1,
+                    bg: "background"
+                  }}
+                >
+                  {documentPreview.url ? (
+                    <Suspense
+                      fallback={
+                        <DownloadAttachmentProgress
+                          hash={documentPreview.hash}
+                        />
                       }
-                    />
-                  </Suspense>
-                ) : (
-                  <DownloadAttachmentProgress hash={documentPreview.hash} />
-                )}
-              </ScopedThemeProvider>
+                    >
+                      <PDFPreview
+                        fileUrl={documentPreview.url}
+                        hash={documentPreview.hash}
+                        onClose={() =>
+                          useEditorStore.setState({
+                            documentPreview: undefined
+                          })
+                        }
+                      />
+                    </Suspense>
+                  ) : (
+                    <DownloadAttachmentProgress hash={documentPreview.hash} />
+                  )}
+                </ScopedThemeProvider>
+              </SidePanel>
             </Pane>
           ) : null}
 
           {isTOCVisible && activeSession ? (
             <Pane id="table-of-contents-pane" initialSize={300} minSize={300}>
-              <TableOfContents sessionId={activeSession.id} />
+              <SidePanel>
+                <TableOfContents sessionId={activeSession.id} />
+              </SidePanel>
             </Pane>
           ) : null}
           {arePropertiesVisible &&
@@ -233,13 +208,49 @@ export default function TabsView() {
             activeSession.type !== "new" &&
             activeSession.type !== "locked" && (
               <Pane id="properties-pane" initialSize={250} minSize={250}>
-                <Properties sessionId={activeSession.id} />
+                <SidePanel>
+                  <Properties sessionId={activeSession.id} />
+                </SidePanel>
               </Pane>
             )}
         </SplitPane>
         <DropZone overlayRef={overlayRef} />
       </ScopedThemeProvider>
     </>
+  );
+}
+
+function renderSession(session: EditorSession) {
+  if (session.type === "locked") return <UnlockNoteView session={session} />;
+  if (session.type === "conflicted" || session.type === "diff")
+    return <DiffViewer session={session} />;
+  return <MemoizedEditorView session={session} />;
+}
+
+/**
+ * Fork: editor panes carry their own tab strips, so side panels get an empty
+ * strip of the same height to keep the title bar continuous.
+ */
+function SidePanel(props: PropsWithChildren) {
+  const mobile = useMobile();
+  return (
+    <Flex sx={{ flexDirection: "column", height: "100%", overflow: "hidden" }}>
+      {mobile ? null : (
+        <Box
+          className="editor-side-panel-header"
+          sx={{
+            height: TITLE_BAR_HEIGHT,
+            flexShrink: 0,
+            bg: "background-secondary",
+            borderBottom: "1px solid var(--border)",
+            borderLeft: "1px solid var(--border)"
+          }}
+        />
+      )}
+      <Flex sx={{ flex: 1, flexDirection: "column", overflow: "hidden" }}>
+        {props.children}
+      </Flex>
+    </Flex>
   );
 }
 
@@ -327,7 +338,9 @@ function EditorView({
   }, [editor, session]);
 
   useLayoutEffect(() => {
-    editor?.focus();
+    // Fork: with several panes visible, only the focused pane's editor
+    // takes keyboard focus.
+    if (isSessionActive(session.id)) editor?.focus();
 
     const unsub = useSearchStore.subscribe(
       (store) => store.isSearching,
@@ -337,12 +350,16 @@ function EditorView({
     );
 
     const element = root.current;
-    element?.classList.add("active", "searching");
+    element?.classList.add("searching");
     return () => {
-      element?.classList.remove("active", "searching");
+      element?.classList.remove("searching");
       unsub();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor]);
+
+  const focusEditor = useCallback(() => editor?.focus(), [editor]);
+  useActiveSessionClass(root, session.id, focusEditor);
 
   const getContent = useCallback(() => {
     return session.content?.data;
@@ -980,6 +997,8 @@ function restoreScrollPosition(session: EditorSession) {
 
 function restoreSelection(editor: IEditor, id: string) {
   setTimeout(() => {
+    // Fork: don't pull focus into a pane the user isn't working in.
+    if (!isSessionActive(id)) return;
     editor.focus({
       position: Config.get(`${id}:selection`)
     });
@@ -991,13 +1010,7 @@ function UnlockNoteView(props: UnlockNoteViewProps) {
   const { session } = props;
   const root = useRef<HTMLDivElement>(null);
 
-  useLayoutEffect(() => {
-    const element = root.current;
-    element?.classList.add("active");
-    return () => {
-      element?.classList.remove("active");
-    };
-  }, []);
+  useActiveSessionClass(root, session.id);
 
   return (
     <div
@@ -1034,4 +1047,46 @@ function UnlockNoteView(props: UnlockNoteViewProps) {
       />
     </div>
   );
+}
+
+function isSessionActive(sessionId: string) {
+  return useEditorStore.getState().getActiveTab()?.sessionId === sessionId;
+}
+
+/**
+ * Fork: the editor package finds the current editor's toolbar, popups and
+ * blocks through the `.active` class. With several panes visible, keep that
+ * class on the focused pane's editor only, and move keyboard focus to an
+ * editor that becomes active while already on screen (e.g. ⌘⌥→ into
+ * another pane).
+ */
+function useActiveSessionClass(
+  ref: React.RefObject<HTMLElement>,
+  sessionId: string,
+  focus?: () => void
+) {
+  useLayoutEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+    let wasActive = isSessionActive(sessionId);
+    element.classList.toggle("active", wasActive);
+    const unsubscribe = useEditorStore.subscribe(
+      (store) => store.getActiveTab()?.sessionId === sessionId,
+      (isActive) => {
+        element.classList.toggle("active", isActive);
+        if (isActive && !wasActive && focus) {
+          requestAnimationFrame(() => {
+            if (!isSessionActive(sessionId)) return;
+            if (element.contains(document.activeElement)) return;
+            focus();
+          });
+        }
+        wasActive = isActive;
+      }
+    );
+    return () => {
+      unsubscribe();
+      element.classList.remove("active");
+    };
+  }, [ref, sessionId, focus]);
 }

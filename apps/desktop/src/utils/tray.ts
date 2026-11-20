@@ -87,6 +87,6 @@ export function setupTray() {
   ]);
   tray.on("double-click", bringToFront);
   if (process.platform !== "darwin") tray.on("click", bringToFront);
-  tray.setToolTip("Notesnook");
+  tray.setToolTip(app.getName());
   tray.setContextMenu(contextMenu);
 }

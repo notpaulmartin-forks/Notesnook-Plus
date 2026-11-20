@@ -37,6 +37,21 @@ const electronTRPC = {
 const os = () => (MAC_APP_STORE ? "mas" : process.platform);
 const appLocale = () => ipcRenderer.sendSync("get-app-locale");
 
+// Fork: trackpad gesture phases + haptics for swipe actions
+const trackpad = {
+  isSupported: () => ipcRenderer.sendSync("trackpad-supported") === true,
+  onPhase: (callback: (phase: string, inverted: boolean) => void) => {
+    const listener = (_event: unknown, phase: string, inverted: boolean) =>
+      callback(phase, inverted);
+    ipcRenderer.on("trackpad-phase", listener);
+    return () => {
+      ipcRenderer.off("trackpad-phase", listener);
+    };
+  },
+  haptic: (pattern: string) => ipcRenderer.send("trackpad-haptic", pattern)
+};
+
 contextBridge.exposeInMainWorld("electronTRPC", electronTRPC);
 contextBridge.exposeInMainWorld("os", os);
 contextBridge.exposeInMainWorld("appLocale", appLocale);
+contextBridge.exposeInMainWorld("trackpad", trackpad);

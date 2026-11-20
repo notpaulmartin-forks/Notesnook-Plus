@@ -499,11 +499,12 @@ class Database {
     return http.get(`${Hosts.API_HOST}/version`);
   }
 
-  async announcements() {
-    let url = `${Hosts.API_HOST}/announcements/active`;
-    const user = await this.user.getUser();
-    if (user) url += `?userId=${user.id}`;
-    return http.get(url);
+  /**
+   * Fork: announcements are not fetched. Upstream requests them from the API
+   * with the user's id attached.
+   */
+  async announcements(): Promise<unknown[]> {
+    return [];
   }
 }
 

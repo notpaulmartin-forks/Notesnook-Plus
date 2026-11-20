@@ -52,7 +52,6 @@ import { navigate } from "../../navigation";
 import { useEditorStore } from "../../stores/editor-store";
 import { useStore as useMonographStore } from "../../stores/monograph-store";
 import { store } from "../../stores/note-store";
-import { store as selectionStore } from "../../stores/selection-store";
 import { store as tagStore } from "../../stores/tag-store";
 import { store as userstore } from "../../stores/user-store";
 import { store as appStore } from "../../stores/app-store";
@@ -98,8 +97,24 @@ import {
   Tag2,
   Tag as TagIcon,
   Trash,
-  Update
+  Update,
+  PinOff,
+  StarOff,
+  StarFilled,
+  Unarchive,
+  NotebookAdd,
+  MoreHorizontal
 } from "../icons";
+import { Swipeable, SwipeAction } from "../list-item/swipeable";
+import { SWIPE_ACTIONS, SwipeActionId } from "../../common/swipe-actions";
+import {
+  linkNotebooks,
+  setArchived,
+  toggleFavorite,
+  togglePinned,
+  trashNotesWithUndo
+} from "../../common/note-actions";
+import { Menu } from "../../hooks/use-menu";
 import { Context } from "../list-container/types";
 import ListItem from "../list-item";
 import { PublishDialog } from "../publish-view";
@@ -132,170 +147,248 @@ function Note(props: NoteProps) {
   const isOpened = useEditorStore((store) => store.isNoteOpen(item.id));
   const primary: SchemeColors = color ? color.colorCode : "accent-selected";
   const dateFormat = useSettingStore((store) => store.dateFormat);
+  const swipe = useSettingStore((store) => store.swipeSettings);
 
   return (
-    <ListItem
-      draggable={true}
-      isFocused={isOpened}
-      isCompact={compact}
-      item={note}
-      title={note.title}
-      body={note.headline as string}
-      onKeyPress={async (e) => {
-        if (e.key === "Delete") {
-          await Multiselect.moveNotesToTrash(
-            selectionStore.get().selectedItems
-          );
+    <Swipeable
+      id={note.id}
+      disabled={!swipe.enabled}
+      leading={swipe.leading.map((id) =>
+        swipeAction(id, note, { color, locked })
+      )}
+      trailing={swipe.trailing.map((id) =>
+        swipeAction(id, note, { color, locked })
+      )}
+    >
+      <ListItem
+        draggable={true}
+        isFocused={isOpened}
+        isCompact={compact}
+        item={note}
+        title={note.title}
+        body={note.headline as string}
+        // Fork: Delete/Backspace (archive) and ⌘Delete (trash) are handled by
+        // the list's keyboard navigation.
+        colors={{
+          accent: primary,
+          heading: color ? primary : "heading",
+          background: "background"
+        }}
+        sx={{
+          borderLeft: isOpened ? "4px solid" : "none",
+          pl: isOpened ? "3px" : "7px",
+          borderLeftColor: isOpened ? primary : "transparent"
+        }}
+        context={{ color, locked }}
+        menuItems={noteMenuItems}
+        onClick={() => useEditorStore.getState().openSession(note)}
+        onMiddleClick={() =>
+          useEditorStore.getState().openSession(note, { openInNewTab: true })
         }
-      }}
-      colors={{
-        accent: primary,
-        heading: color ? primary : "heading",
-        background: "background"
-      }}
-      sx={{
-        borderLeft: isOpened ? "4px solid" : "none",
-        pl: isOpened ? "3px" : "7px",
-        borderLeftColor: isOpened ? primary : "transparent"
-      }}
-      context={{ color, locked }}
-      menuItems={noteMenuItems}
-      onClick={() => useEditorStore.getState().openSession(note)}
-      onMiddleClick={() =>
-        useEditorStore.getState().openSession(note, { openInNewTab: true })
-      }
-      header={
-        <Flex sx={{ alignItems: "center", mb: 1 }}>
-          <Text variant="subBody">
-            {formatDate(date, { type: "date", dateFormat })}
-          </Text>
-        </Flex>
-      }
-      footer={
-        <Flex
-          sx={{
-            fontSize: "subBody",
-            color: "paragraph-secondary",
-            alignItems: "center",
-            gap: 1,
-            flexWrap: "wrap",
-            mt: "small",
-            flexShrink: 0
-          }}
-        >
-          {compact ? (
-            <>
-              {note.conflicted && <Alert size={15} color="var(--icon-error)" />}
-              {locked && <Lock size={11} data-test-id={`locked`} />}
-              {note.favorite && <Star color={primary} size={15} />}
-              {note.readonly && <Readonly size={15} />}
-              {note.expiryDate?.value ? <Destruct size={13} /> : null}
+        header={
+          <Flex sx={{ alignItems: "center", mb: 1 }}>
+            <Text variant="subBody">
+              {formatDate(date, { type: "date", dateFormat })}
+            </Text>
+          </Flex>
+        }
+        footer={
+          <Flex
+            sx={{
+              fontSize: "subBody",
+              color: "paragraph-secondary",
+              alignItems: "center",
+              gap: 1,
+              flexWrap: "wrap",
+              mt: "small",
+              flexShrink: 0
+            }}
+          >
+            {compact ? (
+              <>
+                {note.conflicted && (
+                  <Alert size={15} color="var(--icon-error)" />
+                )}
+                {locked && <Lock size={11} data-test-id={`locked`} />}
+                {note.favorite && <Star color={primary} size={15} />}
+                {note.readonly && <Readonly size={15} />}
+                {note.expiryDate?.value ? <Destruct size={13} /> : null}
 
-              <TimeAgo live={true} datetime={date} locale="short" />
-            </>
-          ) : (
-            <>
-              {note.conflicted && <Alert size={15} color="icon-error" />}
+                <TimeAgo live={true} datetime={date} locale="short" />
+              </>
+            ) : (
+              <>
+                {note.conflicted && <Alert size={15} color="icon-error" />}
 
-              {note.localOnly && <SyncOff size={13} />}
+                {note.localOnly && <SyncOff size={13} />}
 
-              {/* <TimeAgo
+                {/* <TimeAgo
                 sx={{ flexShrink: 0 }}
                 locale="en_short"
                 live={true}
                 datetime={date}
               /> */}
 
-              {attachments?.total ? (
-                <Flex sx={{ alignItems: "center", justifyContent: "center" }}>
-                  <Attachment size={13} />
-                  <Text variant="subBody" ml={"2px"}>
-                    {attachments.total}
-                  </Text>
-                </Flex>
-              ) : null}
+                {attachments?.total ? (
+                  <Flex sx={{ alignItems: "center", justifyContent: "center" }}>
+                    <Attachment size={13} />
+                    <Text variant="subBody" ml={"2px"}>
+                      {attachments.total}
+                    </Text>
+                  </Flex>
+                ) : null}
 
-              {attachments?.failed ? (
-                <Flex title={strings.errorsInAttachments(attachments.failed)}>
-                  <AttachmentError size={13} color="var(--icon-error)" />
-                  <Text ml={"2px"}>{attachments.failed}</Text>
-                </Flex>
-              ) : null}
+                {attachments?.failed ? (
+                  <Flex title={strings.errorsInAttachments(attachments.failed)}>
+                    <AttachmentError size={13} color="var(--icon-error)" />
+                    <Text ml={"2px"}>{attachments.failed}</Text>
+                  </Flex>
+                ) : null}
 
-              {note.pinned && !props.context && <Pin size={13} />}
+                {note.pinned && !props.context && <Pin size={13} />}
 
-              {locked && <Lock size={13} data-test-id={`locked`} />}
+                {locked && <Lock size={13} data-test-id={`locked`} />}
 
-              {note.readonly && <Readonly size={15} />}
+                {note.readonly && <Readonly size={15} />}
 
-              {note.favorite && (
-                <Star data-test-id="favorite" color={primary} size={15} />
-              )}
+                {note.favorite && (
+                  <Star data-test-id="favorite" color={primary} size={15} />
+                )}
 
-              {tags?.items.map((tag) => {
-                return (
+                {tags?.items.map((tag) => {
+                  return (
+                    <IconTag
+                      testId={`tag-item`}
+                      key={tag.id}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (!tag.id)
+                          return showToast("error", strings.tagNotFound());
+
+                        appStore.get().setNavigationTab("tags");
+                        navigate(`/tags/${tag.id}`);
+                      }}
+                      text={tag.title}
+                      title={strings.goToTag(tag.title)}
+                      icon={TagIcon}
+                    />
+                  );
+                })}
+
+                {context?.type !== "notebook" &&
+                  notebooks?.items.map((notebook) => (
+                    <IconTag
+                      key={notebook.id}
+                      onClick={() => {
+                        appStore.get().setNavigationTab("notebooks");
+                        navigate(`/notebooks/${notebook.id}`);
+                      }}
+                      text={notebook.title}
+                      icon={Notebook}
+                    />
+                  ))}
+
+                {reminder && isReminderActive(reminder) ? (
                   <IconTag
-                    testId={`tag-item`}
-                    key={tag.id}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (!tag.id)
-                        return showToast("error", strings.tagNotFound());
-
-                      appStore.get().setNavigationTab("tags");
-                      navigate(`/tags/${tag.id}`);
-                    }}
-                    text={tag.title}
-                    title={strings.goToTag(tag.title)}
-                    icon={TagIcon}
+                    icon={Reminder}
+                    text={getFormattedReminderTime(reminder, true)}
+                    title={reminder.title}
+                    styles={
+                      isReminderToday(reminder)
+                        ? {
+                            icon: { color: primary },
+                            text: { color: primary }
+                          }
+                        : {}
+                    }
                   />
-                );
-              })}
+                ) : null}
 
-              {context?.type !== "notebook" &&
-                notebooks?.items.map((notebook) => (
+                {note.expiryDate?.value && (
                   <IconTag
-                    key={notebook.id}
-                    onClick={() => {
-                      appStore.get().setNavigationTab("notebooks");
-                      navigate(`/notebooks/${notebook.id}`);
-                    }}
-                    text={notebook.title}
-                    icon={Notebook}
+                    icon={Destruct}
+                    text={formatDate(note.expiryDate.value, {
+                      type: "date",
+                      dateFormat
+                    })}
                   />
-                ))}
-
-              {reminder && isReminderActive(reminder) ? (
-                <IconTag
-                  icon={Reminder}
-                  text={getFormattedReminderTime(reminder, true)}
-                  title={reminder.title}
-                  styles={
-                    isReminderToday(reminder)
-                      ? {
-                          icon: { color: primary },
-                          text: { color: primary }
-                        }
-                      : {}
-                  }
-                />
-              ) : null}
-
-              {note.expiryDate?.value && (
-                <IconTag
-                  icon={Destruct}
-                  text={formatDate(note.expiryDate.value, {
-                    type: "date",
-                    dateFormat
-                  })}
-                />
-              )}
-            </>
-          )}
-        </Flex>
-      }
-    />
+                )}
+              </>
+            )}
+          </Flex>
+        }
+      />
+    </Swipeable>
   );
+}
+
+/* Fork: swipe actions (see components/list-item/swipeable.tsx), chosen in
+ * Settings → Behaviour → Swipe */
+function swipeAction(
+  id: SwipeActionId,
+  note: NoteType,
+  context: { color?: Color; locked?: boolean }
+): SwipeAction {
+  const { color } = SWIPE_ACTIONS[id];
+  switch (id) {
+    case "pin":
+      return {
+        key: id,
+        title: note.pinned ? strings.unpin() : strings.pin(),
+        icon: note.pinned ? PinOff : Pin,
+        color,
+        onAction: () => togglePinned([note.id], !note.pinned)
+      };
+    case "favorite":
+      return {
+        key: id,
+        title: note.favorite ? strings.unfavorite() : strings.favorite(),
+        icon: note.favorite ? StarOff : StarFilled,
+        color,
+        onAction: () => toggleFavorite([note.id], !note.favorite)
+      };
+    case "archive":
+      return {
+        key: id,
+        title: note.archived ? strings.unarchive() : strings.archive(),
+        icon: note.archived ? Unarchive : Archive,
+        color,
+        // archiving hides the note from every list except the archive, and
+        // unarchiving removes it from the archive.
+        removesRow: true,
+        onAction: () => setArchived([note.id], !note.archived)
+      };
+    case "trash":
+      return {
+        key: id,
+        title: strings.delete(),
+        icon: Trash,
+        color,
+        removesRow: !db.monographs.isPublished(note.id),
+        onAction: () => trashNotesWithUndo([note.id])
+      };
+    case "notebook":
+      return {
+        key: id,
+        title: strings.notebooks(),
+        icon: NotebookAdd,
+        color,
+        onAction: () => linkNotebooks([note.id])
+      };
+    case "more":
+      return {
+        key: id,
+        title: strings.more(),
+        icon: MoreHorizontal,
+        color,
+        onAction: async (anchor) => {
+          const items = await noteMenuItems(note, [note.id], context);
+          Menu.openMenu(items, {
+            position: { target: anchor, location: "below", align: "center" }
+          });
+        }
+      };
+  }
 }
 
 export default React.memo(Note, function (prevProps, nextProps) {

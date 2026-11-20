@@ -30,16 +30,11 @@ const args = parser(process.argv, { alias: { scope: ["s"], offline: ["o"] } });
 const IS_CI = process.env.CI;
 const THREADS = Math.max(4, process.env.THREADS || os.cpus().length / 2);
 const scopes = {
-  mobile: "apps/mobile",
   web: "apps/web",
-  monograph: "apps/monograph",
-  vericrypt: "apps/vericrypt",
   desktop: "apps/desktop",
   core: "packages/core",
   editor: "packages/editor",
-  themes: "servers/themes",
-  themebuilder: "apps/theme-builder",
-  help: "docs/help"
+  themes: "servers/themes"
 };
 // packages that we should run npm rebuild for
 const POSTINSTALL_WHITELIST = [

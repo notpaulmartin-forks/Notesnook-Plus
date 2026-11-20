@@ -27,6 +27,8 @@ export type PromptDialogProps = BaseDialogProps<undefined | string> & {
   title: string;
   description?: string;
   defaultValue?: string;
+  /** Fork: select the default value when the dialog opens (e.g. renaming) */
+  selectAll?: boolean;
 };
 
 export const PromptDialog = DialogManager.register(function PromptDialog(
@@ -52,6 +54,7 @@ export const PromptDialog = DialogManager.register(function PromptDialog(
         inputRef={inputRef}
         defaultValue={props.defaultValue}
         autoFocus
+        onFocus={props.selectAll ? (e) => e.currentTarget.select() : undefined}
         onKeyUp={(e) => {
           if (e.key == "Enter") props.onClose(inputRef.current?.value || "");
         }}

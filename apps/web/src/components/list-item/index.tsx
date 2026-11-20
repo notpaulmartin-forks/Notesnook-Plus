@@ -104,6 +104,7 @@ function ListItem<TItem extends Item, TContext>(
   return (
     <Flex
       id={`id_${item.id}`}
+      data-item-type={item.type}
       className={isSelected ? "selected" : ""}
       ref={listItemRef}
       draggable={draggable}

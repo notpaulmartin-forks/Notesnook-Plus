@@ -73,6 +73,8 @@ if (args.variant === "mas") {
 } else {
   await exec(`yarn run bundle --outdir=${path.join(root, "build")}`);
 }
+// fork: macOS trackpad gesture addon
+await exec(`node scripts/build-native.mjs --outdir=${path.join(root, "build")}`);
 
 if (!skipTscBuild) {
   await exec(`yarn run build`);

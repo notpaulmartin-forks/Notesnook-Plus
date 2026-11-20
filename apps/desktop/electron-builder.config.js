@@ -29,12 +29,12 @@ const buildFiles = [
   `!${buildRoot}/build/*.png`
 ];
 
-const productName = process.env.NN_PRODUCT_NAME || "Notesnook";
-const appId = process.env.NN_APP_ID || "org.streetwriters.notesnook";
+const productName = process.env.NN_PRODUCT_NAME || "Notesnook Plus";
+const appId = process.env.NN_APP_ID || "com.notpaul.NotesnookPlus";
 const outputDir = process.env.NN_OUTPUT_DIR || "output";
 const linuxExecutableName = process.env.NN_PRODUCT_NAME
   ? process.env.NN_PRODUCT_NAME.toLowerCase().replace(/\s+/g, "-")
-  : "notesnook";
+  : "notesnook-plus";
 const year = new Date().getFullYear();
 const isBeta = pkg.version.includes("-beta");
 
@@ -45,12 +45,14 @@ module.exports = {
   appId: appId,
   productName: productName,
   copyright: `Copyright © ${year} Streetwriters (Private) Limited`,
-  artifactName: "notesnook_${os}_${arch}.${ext}",
+  artifactName: "notesnook-plus_${os}_${arch}.${ext}",
   generateUpdatesFilesForAllChannels: true,
   asar: true,
   asarUnpack: [
     "node_modules/sqlite-better-trigram-@(linux|darwin|windows)-${arch}/**/*",
-    "node_modules/sqlite3-fts5-html-@(linux|darwin|windows)-${arch}/**/*"
+    "node_modules/sqlite3-fts5-html-@(linux|darwin|windows)-${arch}/**/*",
+    // fork: native trackpad gesture addon
+    "build/native/*.node"
   ],
   files: [
     "!*.chunk.js.map",
@@ -96,7 +98,7 @@ module.exports = {
     "node_modules/sodium-native/package.json"
   ],
   afterPack: "./scripts/removeLocales.js",
-  protocols: [{ name: "Notesnook", schemes: ["nn"] }],
+  protocols: [{ name: "Notesnook Plus", schemes: ["nn"] }],
   mac: {
     bundleVersion: "240",
     minimumSystemVersion: "10.12.0",
@@ -134,7 +136,7 @@ module.exports = {
       }
     ],
     icon: "assets/icons/app.icns",
-    title: "Install Notesnook"
+    title: "Install Notesnook Plus"
   },
   mas: {
     entitlements: "assets/entitlements.mas.plist",
@@ -160,7 +162,7 @@ module.exports = {
     icon: "assets/icons/app.ico"
   },
   portable: {
-    artifactName: "notesnook_${os}_${arch}_portable.${ext}"
+    artifactName: "notesnook-plus_${os}_${arch}_portable.${ext}"
   },
   nsis: {
     oneClick: true,

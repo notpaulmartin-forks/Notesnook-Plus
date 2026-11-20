@@ -39,6 +39,8 @@ const actions: Partial<
   nextTab: () => useEditorStore.getState().focusNextTab(),
   previousTab: () => useEditorStore.getState().focusPreviousTab(),
   newTab: () => useEditorStore.getState().addTab(),
+  splitPaneRight: () => useEditorStore.getState().splitPane("right"),
+  splitPaneDown: () => useEditorStore.getState().splitPane("bottom"),
   newNote: () => useEditorStore.getState().newSession(),
   closeActiveTab: () => {
     const activeTab = useEditorStore.getState().getActiveTab();
@@ -75,8 +77,9 @@ const actions: Partial<
       isCommandMode: false
     }).catch(() => {});
   },
-  openSettings: (e) => {
-    if (isInEditor(e)) return;
+  openSettings: () => {
+    // Fork: the editor no longer binds Mod-, (subscript moved to Mod-Shift-,)
+    // so Settings opens from anywhere, including while typing in a note.
     hashNavigate("/settings", { replace: true });
   },
   openKeyboardShortcuts: () => KeyboardShortcutsDialog.show({})

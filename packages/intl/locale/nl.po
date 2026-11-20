@@ -520,6 +520,14 @@ msgstr "{count, plural, one {Versie verwijderd} other {# versies verwijderd}}"
 msgid "{count} characters"
 msgstr "{count} tekens"
 
+#: src/strings.ts:3303
+msgid "{count} notes archived"
+msgstr ""
+
+#: src/strings.ts:3305
+msgid "{count} notes unarchived"
+msgstr ""
+
 #: src/strings.ts:3171
 msgid "{count} stars"
 msgstr "{count} sterren"
@@ -856,6 +864,10 @@ msgstr "Korte notitie toevoegen"
 msgid "Add a tag"
 msgstr "Tag toevoegen"
 
+#: src/strings.ts:3316
+msgid "Add action"
+msgstr ""
+
 #: src/strings.ts:3218
 msgid "Add attachment"
 msgstr "Bijlage toevoegen"
@@ -1145,6 +1157,18 @@ msgstr "Kortingscode toepassen..."
 #: src/strings.ts:2259
 msgid "Archive"
 msgstr "Archiveren"
+
+#: src/strings.ts:3297
+msgid "Archive {count} notes?"
+msgstr ""
+
+#: src/strings.ts:3297
+msgid "Archive this note?"
+msgstr ""
+
+#: src/strings.ts:3301
+msgid "Archived notes are hidden from your notes list. You can find them under Archive."
+msgstr ""
 
 #: src/strings.ts:1337
 #: src/strings.ts:2634
@@ -2001,6 +2025,10 @@ msgstr ""
 msgid "Clearing trash will permanently delete all the items in your trash. This action is IRREVERSIBLE."
 msgstr "Bij het legen van de prullenbak worden alle items erin permanent verwijderd. Deze actie is ONOMKEERBAAR."
 
+#: src/strings.ts:3313
+msgid "Click a button to change, move or remove it. Swiping all the way runs the outermost one."
+msgstr ""
+
 #: src/strings.ts:3138
 msgid "Click here"
 msgstr "Klik hier"
@@ -2060,6 +2088,10 @@ msgstr "Huidig tabblad sluiten"
 #: src/strings.ts:1834
 msgid "Close others"
 msgstr "Andere sluiten"
+
+#: src/strings.ts:3292
+msgid "Close pane"
+msgstr ""
 
 #: src/strings.ts:1923
 msgid "Close to system tray"
@@ -2971,6 +3003,10 @@ msgstr "Afbeeldingen downloaden"
 msgid "Drag & drop files here, or click to select files"
 msgstr "Sleep bestanden hierheen, of klik om bestanden te selecteren"
 
+#: src/strings.ts:3294
+msgid "Drag to move this pane"
+msgstr ""
+
 #: src/strings.ts:2932
 msgid "Drop the files here"
 msgstr "Zet de bestanden hier neer"
@@ -3856,6 +3892,10 @@ msgstr "Afbeeldingen in volledige kwaliteit"
 #: src/strings.ts:2119
 msgid "Full screen"
 msgstr "Volledig scherm"
+
+#: src/strings.ts:3314
+msgid "Full swipe: {action}"
+msgstr ""
 
 #: src/strings.ts:2845
 msgid "Fun facts of the year"
@@ -4834,6 +4874,10 @@ msgstr "Kleine Griekse letters"
 msgid "Lower Roman"
 msgstr "Kleine Romeinse cijfers"
 
+#: src/strings.ts:3293
+msgid "Make panes equal size"
+msgstr ""
+
 #: src/strings.ts:2157
 msgid "Make task list readonly"
 msgstr "Takenlijst alleen-lezen maken"
@@ -5048,6 +5092,10 @@ msgstr "Kolom naar links verplaatsen"
 msgid "Move column right"
 msgstr "Kolom naar rechts verplaatsen"
 
+#: src/strings.ts:3318
+msgid "Move left"
+msgstr ""
+
 #: src/strings.ts:3262
 msgid "Move line down"
 msgstr "Regel naar beneden verplaatsen"
@@ -5068,6 +5116,10 @@ msgstr "Bovenliggend knooppunt omlaag"
 msgid "Move parent node up"
 msgstr "Bovenliggend knooppunt omhoog"
 
+#: src/strings.ts:3319
+msgid "Move right"
+msgstr ""
+
 #: src/strings.ts:2095
 msgid "Move row down"
 msgstr "Rij omlaag verplaatsen"
@@ -5075,6 +5127,14 @@ msgstr "Rij omlaag verplaatsen"
 #: src/strings.ts:2094
 msgid "Move row up"
 msgstr "Rij omhoog verplaatsen"
+
+#: src/strings.ts:3291
+msgid "Move to new pane below"
+msgstr ""
+
+#: src/strings.ts:3290
+msgid "Move to new pane on the right"
+msgstr ""
 
 #: src/strings.ts:532
 msgid "Move to top"
@@ -5240,6 +5300,10 @@ msgstr "Geen back-ups gevonden"
 msgid "No blocks linked"
 msgstr "Geen blokken gekoppeld"
 
+#: src/strings.ts:3315
+msgid "No buttons: swiping this way does nothing."
+msgstr ""
+
 #: src/strings.ts:714
 msgid "No color selected"
 msgstr "Geen kleur geselecteerd"
@@ -5337,6 +5401,10 @@ msgstr "notitie"
 msgid "Note"
 msgstr "Notitie"
 
+#: src/strings.ts:3303
+msgid "Note archived"
+msgstr ""
+
 #: src/strings.ts:740
 msgid "Note copied to clipboard"
 msgstr "Notitie gekopieerd naar klembord"
@@ -5368,6 +5436,10 @@ msgstr "Notitie hersteld uit prullenbak"
 #: src/strings.ts:1466
 msgid "Note title"
 msgstr "Notitietitel"
+
+#: src/strings.ts:3305
+msgid "Note unarchived"
+msgstr ""
 
 #: src/strings.ts:739
 msgid "Note unlocked"
@@ -6600,6 +6672,10 @@ msgstr "Hernoemen"
 msgid "Rename file"
 msgstr "Bestand hernoemen"
 
+#: src/strings.ts:3295
+msgid "Rename note"
+msgstr ""
+
 #: src/strings.ts:814
 msgid "Reorder"
 msgstr "Volgorde wijzigen"
@@ -6615,6 +6691,10 @@ msgstr "Vervangen"
 #: src/strings.ts:2173
 msgid "Replace all"
 msgstr "Alles vervangen"
+
+#: src/strings.ts:3317
+msgid "Replace with"
+msgstr ""
 
 #: src/strings.ts:1966
 msgid "Report"
@@ -7540,9 +7620,17 @@ msgstr "Spellingcontrole"
 msgid "Split cells"
 msgstr "Cellen splitsen"
 
+#: src/strings.ts:3289
+msgid "Split down"
+msgstr ""
+
 #: src/strings.ts:3223
 msgid "Split list item"
 msgstr "Lijstitem splitsen"
+
+#: src/strings.ts:3288
+msgid "Split right"
+msgstr ""
 
 #: src/strings.ts:2803
 msgid "Square"
@@ -7700,6 +7788,26 @@ msgstr "Superscript"
 #: src/strings.ts:2765
 msgid "Support the mission - unlock everything."
 msgstr "Steun de missie - ontgrendel alles."
+
+#: src/strings.ts:3306
+msgid "Swipe"
+msgstr ""
+
+#: src/strings.ts:3309
+msgid "Swipe a note in the list with two fingers to reveal quick actions."
+msgstr ""
+
+#: src/strings.ts:3307
+msgid "Swipe actions"
+msgstr ""
+
+#: src/strings.ts:3311
+msgid "Swipe left"
+msgstr ""
+
+#: src/strings.ts:3310
+msgid "Swipe right"
+msgstr ""
 
 #: src/strings.ts:488
 msgid "Switch to compact view"
@@ -8430,6 +8538,14 @@ msgstr "Kan de 2FA-code niet verzenden"
 #: src/strings.ts:2261
 msgid "Unarchive"
 msgstr "Uit archief halen"
+
+#: src/strings.ts:3299
+msgid "Unarchive {count} notes?"
+msgstr ""
+
+#: src/strings.ts:3299
+msgid "Unarchive this note?"
+msgstr ""
 
 #: src/strings.ts:2055
 msgid "Underline"

@@ -520,6 +520,14 @@ msgstr "{count, plural, one {Version deleted} other {# versions deleted}}"
 msgid "{count} characters"
 msgstr "{count} characters"
 
+#: src/strings.ts:3303
+msgid "{count} notes archived"
+msgstr "{count} notes archived"
+
+#: src/strings.ts:3305
+msgid "{count} notes unarchived"
+msgstr "{count} notes unarchived"
+
 #: src/strings.ts:3171
 msgid "{count} stars"
 msgstr "{count} stars"
@@ -856,6 +864,10 @@ msgstr "Add a short note"
 msgid "Add a tag"
 msgstr "Add a tag"
 
+#: src/strings.ts:3316
+msgid "Add action"
+msgstr "Add action"
+
 #: src/strings.ts:3218
 msgid "Add attachment"
 msgstr "Add attachment"
@@ -1145,6 +1157,18 @@ msgstr "Applying coupon code..."
 #: src/strings.ts:2259
 msgid "Archive"
 msgstr "Archive"
+
+#: src/strings.ts:3297
+msgid "Archive {count} notes?"
+msgstr "Archive {count} notes?"
+
+#: src/strings.ts:3297
+msgid "Archive this note?"
+msgstr "Archive this note?"
+
+#: src/strings.ts:3301
+msgid "Archived notes are hidden from your notes list. You can find them under Archive."
+msgstr "Archived notes are hidden from your notes list. You can find them under Archive."
 
 #: src/strings.ts:1337
 #: src/strings.ts:2634
@@ -2002,6 +2026,10 @@ msgstr ""
 msgid "Clearing trash will permanently delete all the items in your trash. This action is IRREVERSIBLE."
 msgstr "Clearing trash will permanently delete all the items in your trash. This action is IRREVERSIBLE."
 
+#: src/strings.ts:3313
+msgid "Click a button to change, move or remove it. Swiping all the way runs the outermost one."
+msgstr "Click a button to change, move or remove it. Swiping all the way runs the outermost one."
+
 #: src/strings.ts:3138
 msgid "Click here"
 msgstr "Click here"
@@ -2061,6 +2089,10 @@ msgstr "Close current tab"
 #: src/strings.ts:1834
 msgid "Close others"
 msgstr "Close others"
+
+#: src/strings.ts:3292
+msgid "Close pane"
+msgstr "Close pane"
 
 #: src/strings.ts:1923
 msgid "Close to system tray"
@@ -2972,6 +3004,10 @@ msgstr "Downloading images"
 msgid "Drag & drop files here, or click to select files"
 msgstr "Drag & drop files here, or click to select files"
 
+#: src/strings.ts:3294
+msgid "Drag to move this pane"
+msgstr "Drag to move this pane"
+
 #: src/strings.ts:2932
 msgid "Drop the files here"
 msgstr "Drop the files here"
@@ -3857,6 +3893,10 @@ msgstr "Full quality images"
 #: src/strings.ts:2119
 msgid "Full screen"
 msgstr "Full screen"
+
+#: src/strings.ts:3314
+msgid "Full swipe: {action}"
+msgstr "Full swipe: {action}"
 
 #: src/strings.ts:2845
 msgid "Fun facts of the year"
@@ -4835,6 +4875,10 @@ msgstr "Lower Greek"
 msgid "Lower Roman"
 msgstr "Lower Roman"
 
+#: src/strings.ts:3293
+msgid "Make panes equal size"
+msgstr "Make panes equal size"
+
 #: src/strings.ts:2157
 msgid "Make task list readonly"
 msgstr "Make task list readonly"
@@ -5049,6 +5093,10 @@ msgstr "Move column left"
 msgid "Move column right"
 msgstr "Move column right"
 
+#: src/strings.ts:3318
+msgid "Move left"
+msgstr "Move left"
+
 #: src/strings.ts:3262
 msgid "Move line down"
 msgstr "Move line down"
@@ -5069,6 +5117,10 @@ msgstr "Move parent node down"
 msgid "Move parent node up"
 msgstr "Move parent node up"
 
+#: src/strings.ts:3319
+msgid "Move right"
+msgstr "Move right"
+
 #: src/strings.ts:2095
 msgid "Move row down"
 msgstr "Move row down"
@@ -5076,6 +5128,14 @@ msgstr "Move row down"
 #: src/strings.ts:2094
 msgid "Move row up"
 msgstr "Move row up"
+
+#: src/strings.ts:3291
+msgid "Move to new pane below"
+msgstr "Move to new pane below"
+
+#: src/strings.ts:3290
+msgid "Move to new pane on the right"
+msgstr "Move to new pane on the right"
 
 #: src/strings.ts:532
 msgid "Move to top"
@@ -5241,6 +5301,10 @@ msgstr "No backups found"
 msgid "No blocks linked"
 msgstr "No blocks linked"
 
+#: src/strings.ts:3315
+msgid "No buttons: swiping this way does nothing."
+msgstr "No buttons: swiping this way does nothing."
+
 #: src/strings.ts:714
 msgid "No color selected"
 msgstr "No color selected"
@@ -5338,6 +5402,10 @@ msgstr "note"
 msgid "Note"
 msgstr "Note"
 
+#: src/strings.ts:3303
+msgid "Note archived"
+msgstr "Note archived"
+
 #: src/strings.ts:740
 msgid "Note copied to clipboard"
 msgstr "Note copied to clipboard"
@@ -5369,6 +5437,10 @@ msgstr "Note restored from trash"
 #: src/strings.ts:1466
 msgid "Note title"
 msgstr "Note title"
+
+#: src/strings.ts:3305
+msgid "Note unarchived"
+msgstr "Note unarchived"
 
 #: src/strings.ts:739
 msgid "Note unlocked"
@@ -6601,6 +6673,10 @@ msgstr "Rename"
 msgid "Rename file"
 msgstr "Rename file"
 
+#: src/strings.ts:3295
+msgid "Rename note"
+msgstr "Rename note"
+
 #: src/strings.ts:814
 msgid "Reorder"
 msgstr "Reorder"
@@ -6616,6 +6692,10 @@ msgstr "Replace"
 #: src/strings.ts:2173
 msgid "Replace all"
 msgstr "Replace all"
+
+#: src/strings.ts:3317
+msgid "Replace with"
+msgstr "Replace with"
 
 #: src/strings.ts:1966
 msgid "Report"
@@ -7541,9 +7621,17 @@ msgstr "Spell check"
 msgid "Split cells"
 msgstr "Split cells"
 
+#: src/strings.ts:3289
+msgid "Split down"
+msgstr "Split down"
+
 #: src/strings.ts:3223
 msgid "Split list item"
 msgstr "Split list item"
+
+#: src/strings.ts:3288
+msgid "Split right"
+msgstr "Split right"
 
 #: src/strings.ts:2803
 msgid "Square"
@@ -7701,6 +7789,26 @@ msgstr "Superscript"
 #: src/strings.ts:2765
 msgid "Support the mission - unlock everything."
 msgstr "Support the mission - unlock everything."
+
+#: src/strings.ts:3306
+msgid "Swipe"
+msgstr "Swipe"
+
+#: src/strings.ts:3309
+msgid "Swipe a note in the list with two fingers to reveal quick actions."
+msgstr "Swipe a note in the list with two fingers to reveal quick actions."
+
+#: src/strings.ts:3307
+msgid "Swipe actions"
+msgstr "Swipe actions"
+
+#: src/strings.ts:3311
+msgid "Swipe left"
+msgstr "Swipe left"
+
+#: src/strings.ts:3310
+msgid "Swipe right"
+msgstr "Swipe right"
 
 #: src/strings.ts:488
 msgid "Switch to compact view"
@@ -8432,6 +8540,14 @@ msgstr "Unable to send 2FA code"
 #: src/strings.ts:2261
 msgid "Unarchive"
 msgstr "Unarchive"
+
+#: src/strings.ts:3299
+msgid "Unarchive {count} notes?"
+msgstr "Unarchive {count} notes?"
+
+#: src/strings.ts:3299
+msgid "Unarchive this note?"
+msgstr "Unarchive this note?"
 
 #: src/strings.ts:2055
 msgid "Underline"

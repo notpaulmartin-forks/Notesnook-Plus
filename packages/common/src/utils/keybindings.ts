@@ -46,7 +46,8 @@ export const hotkeys = {
   nextTab: {
     keys: normalizeKeys({
       web: ["ctrl+alt+right", "ctrl+alt+shift+right"],
-      desktop: ["ctrl+tab"]
+      // Fork: ⌘⌥→ on macOS, like Safari and most Mac apps
+      desktop: ["ctrl+tab", "ctrl+alt+right"]
     }),
     description: strings.nextTab,
     category: strings.navigation,
@@ -55,7 +56,8 @@ export const hotkeys = {
   previousTab: {
     keys: normalizeKeys({
       web: ["ctrl+alt+left", "ctrl+alt+shift+left"],
-      desktop: ["ctrl+shift+tab"]
+      // Fork: ⌘⌥← on macOS
+      desktop: ["ctrl+shift+tab", "ctrl+alt+left"]
     }),
     description: strings.previousTab,
     category: strings.navigation,
@@ -82,6 +84,22 @@ export const hotkeys = {
       desktop: ["ctrl+shift+w"]
     }),
     description: strings.closeAllTabs,
+    category: strings.navigation,
+    type: "hotkeys"
+  },
+  splitPaneRight: {
+    keys: normalizeKeys({
+      desktop: ["ctrl+d"]
+    }),
+    description: strings.splitRight,
+    category: strings.navigation,
+    type: "hotkeys"
+  },
+  splitPaneDown: {
+    keys: normalizeKeys({
+      desktop: ["ctrl+shift+d"]
+    }),
+    description: strings.splitDown,
     category: strings.navigation,
     type: "hotkeys"
   },
@@ -352,7 +370,8 @@ export const tiptapKeys = {
     type: "tiptap"
   },
   toggleSubscript: {
-    keys: "Mod-,",
+    // Fork: Mod-, is reserved for opening settings
+    keys: "Mod-Shift-,",
     description: strings.toggleSubscript,
     category: strings.editor,
     type: "tiptap"
@@ -527,7 +546,8 @@ export function getGroupedKeybindings(isDesktop: boolean, isMac: boolean) {
     }
 
     const group = grouped.find((g) => g.category === binding.category());
-    if (!group) throw new Error("Invalid group category: " + binding.category());
+    if (!group)
+      throw new Error("Invalid group category: " + binding.category());
 
     group.shortcuts.push({
       keys: Array.isArray(keys) ? keys : [keys],

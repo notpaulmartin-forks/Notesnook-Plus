@@ -1,3 +1,54 @@
+# Notesnook Plus
+
+> [!IMPORTANT]
+> Notesnook Plus is an independent, unofficial fork. It is **not affiliated with, endorsed by or supported by** Streetwriters (Private) Limited or the Notesnook team. The name "Notesnook" is used only to identify the project this fork is based on. Please don't report problems with this fork to the Notesnook team.
+>
+> This is a personal project: a few small features added for my own use. It's shared as-is, without support, and may fall behind Notesnook's own releases.
+
+Forked from [Notesnook](https://github.com/streetwriters/notesnook)
+
+- **macOS desktop app only.** The mobile apps, Monograph, theme builder, Vericrypt, docs and their build pipelines are removed.
+- **Runs alongside the official app.** Renamed to Notesnook Plus with its own app ID, data folder and keychain entry. Your Notesnook account and sync work as usual (log in once).
+- **No auto-updates or in-app announcements.**
+- **Tab switching:** ⌘⌥← / ⌘⌥→ move between open tabs (across panes too).
+- **Side-by-side panes:** ⌘D splits right and ⌘⇧D splits down. Drag the divider to resize, or double-click it to make panes equal.
+- **Drag and drop for tabs and panes:** drag a tab to reorder it, onto a pane edge to make a new pane, or onto another tab strip to merge it back. Panes can be dragged by their grip, and notes from the list can be dropped into any pane.
+- **⌘, opens Settings** from anywhere. Subscript moves to ⌘⇧,.
+- **Mail-style swipe actions on notes** (two-finger swipe on the trackpad):
+  - Swipe right for Pin and Favourite, left for Archive, Delete, Notebooks and More.
+  - Choose the buttons for each side, or turn swiping off, in Settings → Behaviour → Swipe.
+  - A full swipe runs the outermost action when you lift, with a haptic click on Force Touch trackpads. Archive and Delete can be undone.
+- **Note list keyboard shortcuts:** with a note highlighted, Enter renames it, Delete offers to archive it and ⌘Delete offers to move it to the trash.
+
+**Install instructions**
+
+There are no prebuilt downloads; build it on your Mac. You need macOS 11 or later, [Node.js](https://nodejs.org/) 22 and the Xcode Command Line Tools (`xcode-select --install`).
+
+```bash
+git clone https://github.com/notpaulmartin-forks/Notesnook-Plus.git
+cd Notesnook-Plus
+npm install
+
+# build the app's interface and its dependencies
+node scripts/execute.mjs @notesnook/web:build:desktop
+
+# package the macOS app (use --x64 instead of --arm64 on an Intel Mac)
+cd apps/desktop
+rm -rf build && cp -R ../web/build build
+npm run bundle -- --outdir=build
+npm run build:native
+CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder --dir --arm64 \
+  --config=electron-builder.config.js -c.mac.notarize=false
+
+# install (Intel Macs: output/mac/ instead of output/mac-arm64/)
+ditto "output/mac-arm64/Notesnook Plus.app" "/Applications/Notesnook Plus.app"
+codesign --force --deep --sign - "/Applications/Notesnook Plus.app"
+```
+
+The app is signed only for your own Mac. Built this way, it opens normally. To update, pull the latest changes, run the build steps again and quit Notesnook Plus before replacing it.
+
+# Original Notesnook README
+
 <p align="center">
 <img style="align:center;" src="./resources/icon.png" alt="Notesnook Logo" width="100" />
 </p>

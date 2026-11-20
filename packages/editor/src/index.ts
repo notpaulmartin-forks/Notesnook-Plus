@@ -28,6 +28,7 @@ import HorizontalRule from "@tiptap/extension-horizontal-rule";
 import { Link, LinkAttributes } from "./extensions/link/index.js";
 import Placeholder from "@tiptap/extension-placeholder";
 import Subscript from "@tiptap/extension-subscript";
+import { tiptapKeys } from "@notesnook/common";
 import Superscript from "@tiptap/extension-superscript";
 import TableHeader from "./extensions/table-header/index.js";
 import TableRow from "@tiptap/extension-table-row";
@@ -275,7 +276,16 @@ const useTiptap = (
         Blockquote,
         CharacterCount,
         Underline,
-        Subscript,
+        // Fork: tiptap binds subscript to Mod-, which is the macOS shortcut
+        // for Settings. Use the shared keymap instead.
+        Subscript.extend({
+          addKeyboardShortcuts() {
+            return {
+              [tiptapKeys.toggleSubscript.keys]: () =>
+                this.editor.commands.toggleSubscript()
+            };
+          }
+        }),
         Superscript,
         FontSize,
         TextDirection,

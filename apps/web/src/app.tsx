@@ -87,8 +87,8 @@ function App() {
             .mobile-nav-pane .theme-scope-navigationMenu {
               padding-top: env(titlebar-area-height) !important;
             }
-            .editor-pane:first-of-type .editor-action-bar,
-            .mobile-editor-pane.pane-active .editor-action-bar,
+            .editor-pane:first-of-type .editor-action-bar.pane-header-leading,
+            .mobile-editor-pane.pane-active .editor-action-bar.pane-header-leading,
             .mobile-list-pane.pane-active .route-container-header {
                 padding-left: 80px;
             }

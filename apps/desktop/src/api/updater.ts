@@ -32,7 +32,11 @@ type Progress = { percent: number };
 const t = initTRPC.create();
 let cancellationToken: CancellationToken | undefined = undefined;
 let downloadTimeout: NodeJS.Timeout | undefined = undefined;
-const updatesSupported = !isFlatpak() && !isSnap() && !isPortable();
+// Fork: updates are disabled. The upstream feed would replace this build
+// with an official Notesnook release and drop the fork's changes.
+const UPDATES_DISABLED_IN_FORK = true;
+const updatesSupported =
+  !UPDATES_DISABLED_IN_FORK && !isFlatpak() && !isSnap() && !isPortable();
 export const updaterRouter = t.router({
   autoUpdates: t.procedure.query(
     () => updatesSupported && config.automaticUpdates

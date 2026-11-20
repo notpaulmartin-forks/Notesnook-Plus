@@ -3283,5 +3283,38 @@ Continue without attachments?`,
     type === "full"
       ? t`Last full backup: ${date}`
       : t`Last partial backup: ${date}`,
-  issueDescriptionRequired: () => t`Description is required`
+  issueDescriptionRequired: () => t`Description is required`,
+  // Fork additions
+  splitRight: () => t`Split right`,
+  splitDown: () => t`Split down`,
+  moveToNewPaneRight: () => t`Move to new pane on the right`,
+  moveToNewPaneBelow: () => t`Move to new pane below`,
+  closePane: () => t`Close pane`,
+  equalizePanes: () => t`Make panes equal size`,
+  dragToMovePane: () => t`Drag to move this pane`,
+  renameNote: () => t`Rename note`,
+  archiveNotesConfirm: (count: number) =>
+    count === 1 ? t`Archive this note?` : t`Archive ${count} notes?`,
+  unarchiveNotesConfirm: (count: number) =>
+    count === 1 ? t`Unarchive this note?` : t`Unarchive ${count} notes?`,
+  archiveNotesDesc: () =>
+    t`Archived notes are hidden from your notes list. You can find them under Archive.`,
+  notesArchived: (count: number) =>
+    count === 1 ? t`Note archived` : t`${count} notes archived`,
+  notesUnarchived: (count: number) =>
+    count === 1 ? t`Note unarchived` : t`${count} notes unarchived`,
+  swipe: () => t`Swipe`,
+  swipeActions: () => t`Swipe actions`,
+  swipeActionsDesc: () =>
+    t`Swipe a note in the list with two fingers to reveal quick actions.`,
+  swipeRight: () => t`Swipe right`,
+  swipeLeft: () => t`Swipe left`,
+  swipeSideDesc: () =>
+    t`Click a button to change, move or remove it. Swiping all the way runs the outermost one.`,
+  fullSwipeAction: (action: string) => t`Full swipe: ${action}`,
+  noSwipeActions: () => t`No buttons: swiping this way does nothing.`,
+  addSwipeAction: () => t`Add action`,
+  replaceWith: () => t`Replace with`,
+  moveLeft: () => t`Move left`,
+  moveRight: () => t`Move right`
 };

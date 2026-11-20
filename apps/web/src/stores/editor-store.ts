@@ -54,6 +54,20 @@ import Vault from "../common/vault";
 import { Mutex } from "async-mutex";
 import { useEditorManager } from "../components/editor/manager";
 import { Context } from "../components/list-container/types";
+import {
+  DEFAULT_PANE_ID,
+  PaneEdge,
+  PaneLayoutNode,
+  createPaneLayout,
+  getPaneIds,
+  hasPane,
+  insertPane,
+  movePane,
+  removePane,
+  resizeSplit,
+  equalizeSplit,
+  sanitizeLayout
+} from "./editor-panes";
 
 export enum SaveState {
   NotSaved = -1,
@@ -72,6 +86,31 @@ type TabItem = {
   id: string;
   sessionId: string;
   pinned?: boolean;
+  /**
+   * Fork: the pane this tab lives in. Tabs without a (valid) pane belong to
+   * the first pane.
+   */
+  paneId?: string;
+};
+
+export type EditorPane = {
+  id: string;
+  /**
+   * The tab currently shown in this pane.
+   */
+  activeTabId?: string;
+};
+
+export type TabDropTarget = {
+  paneId: string;
+  /**
+   * Insertion slot in the destination pane's current tab list.
+   */
+  index?: number;
+  /**
+   * When set, the tab is moved into a new pane on this edge of `paneId`.
+   */
+  edge?: PaneEdge;
 };
 
 export type BaseEditorSession = {
@@ -203,6 +242,7 @@ const tabSessionHistory = new TabSessionHistory({
 });
 
 const saveMutex = new Mutex();
+const hydratingTabs = new Set<string>();
 
 class EditorStore extends BaseStore<EditorStore> {
   tabs: TabItem[] = [];
@@ -217,6 +257,11 @@ class EditorStore extends BaseStore<EditorStore> {
   isTOCVisible = Config.get("editor:toc", false);
   editorMargins = Config.get("editor:margins", true);
   history: string[] = [];
+
+  // Fork: side-by-side panes
+  panes: EditorPane[] = [{ id: DEFAULT_PANE_ID }];
+  paneLayout: PaneLayoutNode = createPaneLayout();
+  activePaneId: string = DEFAULT_PANE_ID;
 
   getSession = <T extends SessionType[]>(id: string, types?: T) => {
     return this.get().sessions.find(
@@ -877,7 +922,8 @@ class EditorStore extends BaseStore<EditorStore> {
   };
 
   focusNextTab = () => {
-    const { tabs, activeTabId } = this.get();
+    const { activeTabId } = this.get();
+    const tabs = this.getTabsInVisualOrder();
     if (tabs.length <= 1) return;
 
     const index = tabs.findIndex((s) => s.id === activeTabId);
@@ -886,7 +932,8 @@ class EditorStore extends BaseStore<EditorStore> {
   };
 
   focusPreviousTab = () => {
-    const { tabs, activeTabId } = this.get();
+    const { activeTabId } = this.get();
+    const tabs = this.getTabsInVisualOrder();
     if (tabs.length <= 1) return;
 
     const index = tabs.findIndex((s) => s.id === activeTabId);
@@ -1204,6 +1251,8 @@ class EditorStore extends BaseStore<EditorStore> {
       state.tabs = tabs;
     });
 
+    this.normalizePanes();
+
     const { history, tabs } = this.get();
     this.focusTab(history.pop());
     if (tabs.length === 0) this.addTab();
@@ -1286,13 +1335,21 @@ class EditorStore extends BaseStore<EditorStore> {
       return session as SessionTypeMap[T[number]];
   };
 
-  addTab = (sessionId?: string) => {
+  addTab = (sessionId?: string, paneId?: string) => {
     const id = getId();
     const newSessionId = sessionId || tabSessionHistory.add(id);
+    const { paneLayout, activePaneId } = this.get();
+    const targetPaneId =
+      paneId && hasPane(paneLayout, paneId)
+        ? paneId
+        : hasPane(paneLayout, activePaneId)
+        ? activePaneId
+        : getPaneIds(paneLayout)[0];
     this.set((state) => {
       state.tabs.push({
         id,
-        sessionId: newSessionId
+        sessionId: newSessionId,
+        paneId: targetPaneId
       });
     });
     if (!sessionId)
@@ -1327,14 +1384,348 @@ class EditorStore extends BaseStore<EditorStore> {
     history.push(tabId);
 
     const tab = this.get().tabs.find((t) => t.id === tabId);
-    this.set({
-      activeTabId: tabId,
-      canGoBack: !tab?.pinned && tabSessionHistory.canGoBack(tabId),
-      canGoForward: !tab?.pinned && tabSessionHistory.canGoForward(tabId)
+    const paneId = tab ? this.getPaneIdOfTab(tab) : undefined;
+    this.set((state) => {
+      state.activeTabId = tabId;
+      state.canGoBack = !tab?.pinned && tabSessionHistory.canGoBack(tabId);
+      state.canGoForward =
+        !tab?.pinned && tabSessionHistory.canGoForward(tabId);
+      if (paneId) {
+        state.activePaneId = paneId;
+        const pane = state.panes.find((p) => p.id === paneId);
+        if (pane) pane.activeTabId = tabId;
+        else state.panes.push({ id: paneId, activeTabId: tabId });
+      }
     });
 
     sessionId = sessionId || tab?.sessionId;
     if (sessionId) this.rehydrateSession(sessionId);
+  };
+
+  /* ---------------------------------------------------------------------- */
+  /* Fork: panes                                                             */
+  /* ---------------------------------------------------------------------- */
+
+  getPaneIdOfTab = (tab: TabItem) => {
+    const ids = getPaneIds(this.get().paneLayout);
+    return tab.paneId && ids.includes(tab.paneId) ? tab.paneId : ids[0];
+  };
+
+  getTabsInPane = (paneId: string) => {
+    return this.get().tabs.filter((t) => this.getPaneIdOfTab(t) === paneId);
+  };
+
+  getTabsInVisualOrder = () => {
+    const { tabs, paneLayout } = this.get();
+    return getPaneIds(paneLayout).flatMap((paneId) =>
+      tabs.filter((t) => this.getPaneIdOfTab(t) === paneId)
+    );
+  };
+
+  getPaneActiveTabId = (paneId: string) => {
+    const pane = this.get().panes.find((p) => p.id === paneId);
+    const tabs = this.getTabsInPane(paneId);
+    if (pane?.activeTabId && tabs.some((t) => t.id === pane.activeTabId))
+      return pane.activeTabId;
+    return tabs[0]?.id;
+  };
+
+  /**
+   * Make the pane state consistent with the tabs: every tab belongs to an
+   * existing pane, empty panes are removed (one pane always remains) and
+   * every pane points at one of its own tabs.
+   */
+  normalizePanes = () => {
+    const { tabs, panes, paneLayout, activePaneId, activeTabId, history } =
+      this.get();
+
+    let layout =
+      sanitizeLayout(paneLayout, () => true) ||
+      createPaneLayout(panes?.[0]?.id || DEFAULT_PANE_ID);
+    let ids = getPaneIds(layout);
+
+    let tabsChanged = false;
+    const nextTabs = tabs.map((tab) => {
+      if (tab.paneId && ids.includes(tab.paneId)) return tab;
+      tabsChanged = true;
+      return { ...tab, paneId: ids[0] };
+    });
+
+    for (const id of ids) {
+      if (getPaneIds(layout).length <= 1) break;
+      if (!nextTabs.some((t) => t.paneId === id))
+        layout = removePane(layout, id);
+    }
+    ids = getPaneIds(layout);
+
+    const nextPanes: EditorPane[] = ids.map((id) => {
+      const paneTabs = nextTabs.filter((t) => t.paneId === id);
+      let active = panes?.find((p) => p.id === id)?.activeTabId;
+      if (!active || !paneTabs.some((t) => t.id === active)) {
+        active =
+          (history || [])
+            .slice()
+            .reverse()
+            .find((h) => paneTabs.some((t) => t.id === h)) || paneTabs[0]?.id;
+      }
+      return { id, activeTabId: active };
+    });
+
+    const activeTab = nextTabs.find((t) => t.id === activeTabId);
+    const nextActivePaneId =
+      activeTab?.paneId && ids.includes(activeTab.paneId)
+        ? activeTab.paneId
+        : ids.includes(activePaneId)
+        ? activePaneId
+        : ids[0];
+
+    this.set((state) => {
+      state.paneLayout = layout;
+      state.panes = nextPanes;
+      state.activePaneId = nextActivePaneId;
+      if (tabsChanged) state.tabs = nextTabs;
+    });
+  };
+
+  focusPane = (paneId: string) => {
+    const { activePaneId, activeTabId, getSession, tabs } = this.get();
+    const tabId = this.getPaneActiveTabId(paneId);
+    if (!tabId || (activePaneId === paneId && activeTabId === tabId)) return;
+    const tab = tabs.find((t) => t.id === tabId);
+    const session = tab && getSession(tab.sessionId);
+    if (session) this.activateSession(session.id);
+    else this.focusTab(tabId);
+  };
+
+  /**
+   * Open a new pane next to the pane of `tabId` (defaults to the active tab)
+   * showing the same note, like "Split Editor" in code editors.
+   */
+  splitPane = (edge: PaneEdge = "right", tabId?: string) => {
+    const { activeTabId, tabs, paneLayout, getSession } = this.get();
+    const tab = tabs.find((t) => t.id === (tabId || activeTabId));
+    const sourcePaneId = tab
+      ? this.getPaneIdOfTab(tab)
+      : getPaneIds(paneLayout)[0];
+    const session = tab && getSession(tab.sessionId);
+
+    const newPaneId = getId();
+    const layout = insertPane(
+      paneLayout,
+      sourcePaneId,
+      newPaneId,
+      edge,
+      getId()
+    );
+    this.set((state) => {
+      state.paneLayout = layout;
+      state.panes.push({ id: newPaneId });
+      state.activePaneId = newPaneId;
+    });
+
+    if (session && "note" in session && session.type !== "diff") {
+      this.openSession(session.note.id, { openInNewTab: true });
+    } else {
+      this.addTab(undefined, newPaneId);
+    }
+  };
+
+  /**
+   * Move a tab to another position, into another pane, or out into a new pane
+   * on an edge of an existing pane.
+   */
+  moveTab = (tabId: string, target: TabDropTarget) => {
+    const { tabs, paneLayout } = this.get();
+    const tab = tabs.find((t) => t.id === tabId);
+    if (!tab || !hasPane(paneLayout, target.paneId)) return;
+
+    // the editor remounts in its new pane, so persist anything unsaved first.
+    this.saveSessionContentIfNotSaved(tab.sessionId);
+
+    const sourcePaneId = this.getPaneIdOfTab(tab);
+    let layout = paneLayout;
+    let destPaneId = target.paneId;
+    let index = target.index;
+
+    if (target.edge) {
+      const sourceTabs = tabs.filter(
+        (t) => this.getPaneIdOfTab(t) === sourcePaneId
+      );
+      // splitting a pane's only tab off from itself changes nothing.
+      if (sourcePaneId === target.paneId && sourceTabs.length === 1) return;
+
+      destPaneId = getId();
+      layout = insertPane(
+        paneLayout,
+        target.paneId,
+        destPaneId,
+        target.edge,
+        getId()
+      );
+      index = 0;
+    } else if (index !== undefined && sourcePaneId === destPaneId) {
+      const currentIndex = this.getTabsInPane(destPaneId).findIndex(
+        (t) => t.id === tabId
+      );
+      if (currentIndex !== -1 && currentIndex < index) index -= 1;
+    }
+
+    const paneOf = (t: TabItem) =>
+      t.paneId && getPaneIds(layout).includes(t.paneId)
+        ? t.paneId
+        : getPaneIds(layout)[0];
+    const rest = tabs.filter((t) => t.id !== tabId);
+    const destTabs = rest.filter((t) => paneOf(t) === destPaneId);
+    const moved: TabItem = { ...tab, paneId: destPaneId };
+    // a tab moved next to pinned tabs is pinned, one moved past them is not.
+    const slot = Math.max(
+      0,
+      Math.min(index ?? destTabs.length, destTabs.length)
+    );
+    if (destTabs.length > 0) {
+      const before = destTabs[slot - 1];
+      const after = destTabs[slot];
+      if (after?.pinned) moved.pinned = true;
+      else if (!before?.pinned) moved.pinned = false;
+    }
+
+    let insertAt = rest.length;
+    if (destTabs.length > 0) {
+      insertAt =
+        slot >= destTabs.length
+          ? rest.indexOf(destTabs[destTabs.length - 1]) + 1
+          : rest.indexOf(destTabs[slot]);
+    }
+    rest.splice(insertAt, 0, moved);
+
+    this.set((state) => {
+      state.tabs = rest;
+      state.paneLayout = layout;
+      if (!state.panes.some((p) => p.id === destPaneId))
+        state.panes.push({ id: destPaneId, activeTabId: tabId });
+    });
+    this.normalizePanes();
+    this.focusTab(tabId);
+  };
+
+  /**
+   * Move a whole pane next to another pane (`edge`), or merge all its tabs
+   * into another pane (no `edge`).
+   */
+  movePaneTo = (paneId: string, target: TabDropTarget) => {
+    const { paneLayout, tabs } = this.get();
+    if (paneId === target.paneId) return;
+    if (!hasPane(paneLayout, paneId) || !hasPane(paneLayout, target.paneId))
+      return;
+
+    const activeTabOfPane = this.getPaneActiveTabId(paneId);
+    if (target.edge) {
+      const layout = movePane(
+        paneLayout,
+        paneId,
+        target.paneId,
+        target.edge,
+        getId()
+      );
+      this.set({ paneLayout: layout });
+      this.normalizePanes();
+      if (activeTabOfPane) this.focusTab(activeTabOfPane);
+      return;
+    }
+
+    const movingTabs = tabs
+      .filter((t) => this.getPaneIdOfTab(t) === paneId)
+      .map((t) => ({ ...t, paneId: target.paneId }));
+    const rest = tabs.filter((t) => this.getPaneIdOfTab(t) !== paneId);
+    const destTabs = rest.filter(
+      (t) => this.getPaneIdOfTab(t) === target.paneId
+    );
+    const slot = Math.max(
+      0,
+      Math.min(target.index ?? destTabs.length, destTabs.length)
+    );
+    const insertAt =
+      destTabs.length === 0
+        ? rest.length
+        : slot >= destTabs.length
+        ? rest.indexOf(destTabs[destTabs.length - 1]) + 1
+        : rest.indexOf(destTabs[slot]);
+    rest.splice(insertAt, 0, ...movingTabs);
+
+    this.set({ tabs: rest, paneLayout: removePane(paneLayout, paneId) });
+    this.normalizePanes();
+    if (activeTabOfPane) this.focusTab(activeTabOfPane);
+  };
+
+  /**
+   * Open a note in a new tab of `paneId`, or in a new pane on one of its edges.
+   */
+  openNoteInPane = (noteId: string, paneId: string, edge?: PaneEdge) => {
+    const { paneLayout } = this.get();
+    if (!hasPane(paneLayout, paneId)) return;
+    if (edge) {
+      const newPaneId = getId();
+      const layout = insertPane(paneLayout, paneId, newPaneId, edge, getId());
+      this.set((state) => {
+        state.paneLayout = layout;
+        state.panes.push({ id: newPaneId });
+        state.activePaneId = newPaneId;
+      });
+    } else {
+      this.focusPane(paneId);
+      this.set({ activePaneId: paneId });
+    }
+    return this.openSession(noteId, { openInNewTab: true });
+  };
+
+  closePane = (paneId: string) => {
+    const tabs = this.getTabsInPane(paneId);
+    if (getPaneIds(this.get().paneLayout).length <= 1) return;
+    this.closeTabs(...tabs.map((t) => t.id));
+  };
+
+  resizePaneSplit = (splitId: string, sizes: number[]) => {
+    this.set({
+      paneLayout: resizeSplit(this.get().paneLayout, splitId, sizes)
+    });
+  };
+
+  equalizePaneSplit = (splitId: string) => {
+    this.set({ paneLayout: equalizeSplit(this.get().paneLayout, splitId) });
+  };
+
+  /**
+   * Load a tab's note without moving focus to it. Panes other than the active
+   * one need this after a restart: their visible tabs are persisted
+   * unhydrated, and opening a session always targets the active tab.
+   */
+  hydrateTabInBackground = (tabId: string) => {
+    const { tabs, getSession, activeTabId } = this.get();
+    const tab = tabs.find((t) => t.id === tabId);
+    const session = tab && getSession(tab.sessionId);
+    if (
+      !session ||
+      !session.needsHydration ||
+      session.type === "new" ||
+      session.type === "diff" ||
+      hydratingTabs.has(tabId)
+    )
+      return;
+
+    hydratingTabs.add(tabId);
+    // openSession resolves its target tab synchronously from activeTabId,
+    // before its first await, so point it at this tab just for that call.
+    this.set({ activeTabId: tabId });
+    let promise: Promise<void> | undefined;
+    try {
+      promise = this.openSession(session.note.id, {
+        force: true,
+        silent: true
+      });
+    } finally {
+      this.set({ activeTabId });
+    }
+    promise?.finally(() => hydratingTabs.delete(tabId));
   };
 
   refreshSessionWithNoteIds = (noteIds: string[]) => {
@@ -1360,6 +1751,9 @@ const useEditorStore = createPersistedStore(EditorStore, {
     editorMargins: state.editorMargins,
     tabs: state.tabs,
     activeTabId: state.activeTabId,
+    panes: state.panes,
+    paneLayout: state.paneLayout,
+    activePaneId: state.activePaneId,
     tabHistory: state.tabHistory,
     canGoBack: state.canGoBack,
     canGoForward: state.canGoForward,
@@ -1384,7 +1778,11 @@ const useEditorStore = createPersistedStore(EditorStore, {
       return sessions;
     }, [] as EditorSession[])
   }),
-  storage: db.config() as PersistStorage<Partial<EditorStore>>
+  storage: db.config() as PersistStorage<Partial<EditorStore>>,
+  onRehydrateStorage: () => (state) => {
+    // Fork: migrate tabs saved before panes existed and repair bad layouts.
+    state?.normalizePanes();
+  }
 }) as ReturnType<typeof createPersistedStore<EditorStore>>;
 export { useEditorStore, SESSION_STATES };
 

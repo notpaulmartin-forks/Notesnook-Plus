@@ -20,7 +20,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import { memo } from "react";
 import MDIIcon from "@mdi/react";
 import {
+  // Fork additions
+  mdiDragVertical,
+  mdiStar,
+  mdiArchiveArrowUpOutline,
+  mdiPinOffOutline,
+  mdiStarOffOutline,
+  mdiViewSplitVertical,
+  mdiViewSplitHorizontal,
+  mdiNotebookPlusOutline,
   mdiPlus,
+  mdiSwapHorizontal,
   mdiMinus,
   mdiBookOutline,
   mdiNotebookOutline,
@@ -326,6 +336,7 @@ export function createIcon(path: string, rotate = false) {
 }
 
 export const Plus = createIcon(mdiPlus);
+export const SwapHorizontal = createIcon(mdiSwapHorizontal);
 export const NoteAdd = createIcon(mdiNoteEditOutline);
 export const Note = createIcon(mdiNoteOutline);
 export const NoteRemove = createIcon(mdiNoteRemoveOutline);
@@ -590,3 +601,13 @@ export const Inbox = createIcon(mdiInbox);
 export const SpellCheck = createIcon(mdiSpellcheck);
 export const ClearTrash = createIcon(mdiDeleteSweepOutline);
 export const CloseCircle = createIcon(mdiCloseCircle);
+
+// Fork additions
+export const DragHandle = createIcon(mdiDragVertical);
+export const StarFilled = createIcon(mdiStar);
+export const Unarchive = createIcon(mdiArchiveArrowUpOutline);
+export const PinOff = createIcon(mdiPinOffOutline);
+export const StarOff = createIcon(mdiStarOffOutline);
+export const SplitRight = createIcon(mdiViewSplitVertical);
+export const SplitDown = createIcon(mdiViewSplitHorizontal);
+export const NotebookAdd = createIcon(mdiNotebookPlusOutline);

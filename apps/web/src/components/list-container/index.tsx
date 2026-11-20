@@ -31,7 +31,6 @@ import {
   getListItemDefaultHeight,
   getListItemPlaceholderData
 } from "./list-profiles";
-import Announcements from "../announcements";
 import { ListLoader } from "../loaders/list-loader";
 import ScrollContainer, { ScrollContainerProps } from "../scroll-container";
 import { useKeyboardListNavigation } from "../../hooks/use-keyboard-list-navigation";
@@ -47,6 +46,11 @@ import {
 import { getRandom, useResolvedItem } from "@notesnook/common";
 import { Context } from "./types";
 import { AppEventManager, AppEvents } from "../../common/app-events";
+import {
+  confirmArchiveNotes,
+  confirmTrashNotes,
+  renameNote
+} from "../../common/note-actions";
 
 export const CustomScrollbarsVirtualList = forwardRef<
   HTMLDivElement,
@@ -195,6 +199,37 @@ function ListContainer(props: ListContainerProps) {
       waitForElement(listRef.current, index, `id_${id}`, (element) =>
         element.click()
       );
+    },
+    onItemAction: (action, index, event) => {
+      // Fork: act on the highlighted note (the focused row), or on the
+      // selection when several notes are selected.
+      const row =
+        event.target instanceof HTMLElement
+          ? event.target.closest<HTMLElement>("[data-item-type]")
+          : null;
+      const focusedId = row?.id?.startsWith("id_")
+        ? row.id.slice(3)
+        : items.cacheItem(index)?.item?.id;
+      const itemType = row
+        ? row.dataset.itemType
+        : items.cacheItem(index)?.item?.type;
+      if (!focusedId || itemType !== "note") return false;
+
+      const selected = selectionStore.get().selectedItems;
+      const ids =
+        selected.length > 1 && selected.includes(focusedId)
+          ? selected
+          : [focusedId];
+
+      if (action === "rename") {
+        // open after Enter is released, otherwise its keyup submits the prompt
+        afterKeyUp(event.key).then(() => renameNote(focusedId));
+      } else if (action === "archive") {
+        confirmArchiveNotes(ids);
+      } else if (action === "trash") {
+        confirmTrashNotes(ids);
+      }
+      return true;
     }
   });
 
@@ -430,7 +465,7 @@ function VirtuosoItem({
 }
 
 function ListHeader({ context }: { context?: ListContext }) {
-  return context?.header ? context.header : <Announcements />;
+  return context?.header ? context.header : null;
 }
 
 /**
@@ -467,5 +502,23 @@ export function waitForElement(
 
       callback(element);
     }
+  });
+}
+
+function afterKeyUp(key: string) {
+  return new Promise<void>((resolve) => {
+    const done = () => {
+      clearTimeout(timeout);
+      window.removeEventListener("keyup", onKeyUp, true);
+      resolve();
+    };
+    const onKeyUp = (e: KeyboardEvent) => {
+      if (e.key !== key) return;
+      e.preventDefault();
+      e.stopPropagation();
+      done();
+    };
+    const timeout = setTimeout(done, 1000);
+    window.addEventListener("keyup", onKeyUp, true);
   });
 }
